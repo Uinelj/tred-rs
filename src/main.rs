@@ -7,22 +7,35 @@ use rand::distributions::{IndependentSample, Range};
 use rand::Rng;
 
 fn main() {
+
     let nthread = 4;
     let mut rng = rand::thread_rng();
-    let rng_boundaries = Range::new(1u64, 10u64);
+    let rng_boundaries = Range::new(1u64, 4u64);
     let mut secs;
     let mut handles = vec![];
+
     for i in 0..nthread {
         secs = rng_boundaries.ind_sample(&mut rng);
         handles.push(thread::spawn(move || {
-            println!("Thread number {} started. Will work for {} seconds", i, secs);
+            println!("{} : Thread started. Estimated work time : {} ", i, secs);
+            println!("{} : Parking thread", i);
+            thread::park();
+            println!("{} : Thread unparked ! Working...", i);
             work(secs);
-            println!("Thread number {} ended", i);
-        }))
+            println!("{} : Thread ended", i);
+        }));
+
+
     }
 
+
     for handle in handles {
-        let _ = handle.join();
+        println!("M : Unparking thread");
+        handle.thread().unpark();
+    }
+
+    loop{
+        thread::sleep(Duration::from_millis(10))
     }
 }
 
