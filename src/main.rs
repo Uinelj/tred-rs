@@ -28,15 +28,13 @@ fn main() {
 
     }
 
-
-    for handle in handles {
-        println!("M : Unparking thread");
-        handle.thread().unpark();
-    }
-
-    loop{
-        thread::sleep(Duration::from_millis(10))
-    }
+    loop {
+        for handle in handles.iter().cycle() {
+            //println!("M : Unparking thread");
+            &handle.thread().unpark();
+            thread::sleep(Duration::from_millis(10));
+        }
+}
 }
 
 fn work(secs : u64) {
